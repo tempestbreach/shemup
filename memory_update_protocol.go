@@ -73,7 +73,7 @@ func encryptCBC(k, v, iv []byte) ([]byte, error) {
     // }
 
     mode := cipher.NewCBCEncrypter(block, iv)
-    mode.CryptBlocks(ciphertext[aes.BlockSize:], v)
+    mode.CryptBlocks(ciphertext, v)
 
     return ciphertext, err
 }
