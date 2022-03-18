@@ -132,7 +132,6 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
 	k3 := mpKDF(info.KEY_NEW, KEY_UPDATE_ENC_C)
 	k4 := mpKDF(info.KEY_NEW, KEY_UPDATE_MAC_C)
 
-    fmt.Println("Starting...")
     b1 := toBytes((info.ID<<4|info.AuthID&0x0F), 1)
 	m1 := append(info.UID, b1...)
     fmt.Println("Finished first toBytes")
@@ -179,7 +178,6 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
 }
 
 func GenerateMessageBasic(info MemoryUpdateInfo) MemoryUpdateMessage {
-    fmt.Println("FUCK, WTF")
     d1, err := hex.DecodeString("010153484500800000000000000000B0")
     d2, err := hex.DecodeString("010253484500800000000000000000B0")
     if err != nil {
@@ -214,7 +212,7 @@ func GenerateMessageBasic(info MemoryUpdateInfo) MemoryUpdateMessage {
 // }
 
 func toBytes(d int, size uint64) []byte {
-    fmt.Println("Converting to bytes: %d with size %d", d, size)
+    fmt.Printf("\nConverting to bytes: %d with size %d", d, size)
     n := uint64(d)
     bs := make([]byte, size)
     binary.BigEndian.PutUint64(bs, n)
