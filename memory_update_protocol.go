@@ -33,7 +33,7 @@ type MemoryUpdateMessage struct {
 
 func encryptECB(k, v []byte) ([]byte, error){
     if !validKey(k) {
-        return nil, fmt.Errorf("length of the key is invalid: %d", len(k))
+        return nil, fmt.Errorf("length of the key is invalid: %d\n", len(k))
     }
 
     block, err := aes.NewCipher(k)
@@ -42,7 +42,7 @@ func encryptECB(k, v []byte) ([]byte, error){
     }
 
     if len(v)%block.BlockSize() != 0 {
-        return nil, fmt.Errorf("source data must be an integer multiple of %d; current length: %d", block.BlockSize(), len(v))
+        return nil, fmt.Errorf("source data must be an integer multiple of %d; current length: %d\n", block.BlockSize(), len(v))
     }
 
     var dst []byte
@@ -58,7 +58,7 @@ func encryptECB(k, v []byte) ([]byte, error){
 // func encryptCBC(k, v, iv []byte) ([]byte, error) {
 func encryptCBC(k, v, iv []byte) ([]byte, error) {
     if len(v)%aes.BlockSize != 0 {
-        return nil, fmt.Errorf("source data must be an integer multiple of %d; current length: %d", aes.BlockSize, len(v))
+        return nil, fmt.Errorf("source data must be an integer multiple of %d; current length: %d\n", aes.BlockSize, len(v))
     }
 
     block, err := aes.NewCipher(k)
@@ -92,7 +92,7 @@ func generateCMAC(k, m []byte) ([]byte, error) {
 
 func xorBytes(a, b []byte) []byte {
 	if len(a) != len(b) {
-		fmt.Printf("length of byte slices is not equivalent: %d != %d", len(a), len(b))
+		fmt.Printf("length of byte slices is not equivalent: %d != %d\n", len(a), len(b))
 	}
 
 	buf := make([]byte, len(a))
@@ -294,7 +294,7 @@ func GenerateMessageBasic(info MemoryUpdateInfo) MemoryUpdateMessage {
 // }
 
 func toBytes(d uint, size uint64) []byte {
-    fmt.Printf("\nConverting to bytes: %d with size %d", d, size)
+    fmt.Printf("Converting to bytes: %d with size %d\n", d, size)
     n := uint64(d)
     bs := make([]byte, size)
     binary.BigEndian.PutUint64(bs, n)
