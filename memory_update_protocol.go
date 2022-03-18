@@ -163,6 +163,8 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
         fmt.Println(err)
     }
     fmt.Println(len(m2))
+    fmt.Println(m2)
+    fmt.Println(hex.EncodeToString(m2))
 
     f3 := append(m1, m2...)
 	m3, err := generateCMAC(k2, f3)
@@ -184,6 +186,10 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
     if err != nil {
         fmt.Println(err)
     }
+
+    fmt.Println(len(m2))
+    fmt.Println(m2)
+    fmt.Println(hex.EncodeToString(m2))
 
     mum := MemoryUpdateMessage{
         M1: m1,
