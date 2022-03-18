@@ -58,7 +58,7 @@ func encryptECB(k, v []byte) ([]byte, error){
 // func encryptCBC(k, v, iv []byte) ([]byte, error) {
 func encryptCBC(k, v, iv []byte) ([]byte, error) {
     if len(v)%aes.BlockSize != 0 {
-        return nil, fmt.Errorf("source data must be an integer multiple of %d; current length: $d", aes.BlockSize, len(v))
+        return nil, fmt.Errorf("source data must be an integer multiple of %d; current length: %d", aes.BlockSize, len(v))
     }
 
     block, err := aes.NewCipher(k)
@@ -146,6 +146,7 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
     fmt.Println(b3)
     b4 := append(b1, b3...)
     fmt.Printf("\nm1 = %T", b4)
+    fmt.Println(b4)
 	m1 := b4
 
     c1 := toBytes(uint((info.C_ID<<4 | 0x0F & (info.F_ID>>2))), 16)
