@@ -133,11 +133,11 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
 	k4 := mpKDF(info.KEY_NEW, KEY_UPDATE_MAC_C)
 
     b1 := info.UID
-    fmt.Printf("\ninfo.UID = %T :: %s", b1)
-    b2 := toBytes(uint((info.ID << 4) | (info.AuthID & 0x0F)), 18)
-    fmt.Printf("\nb2 = %T :: %s", b2)
+    fmt.Printf("\ninfo.UID = %T :: %s", b1, b1)
+    b2 := toBytes(uint((info.ID << 4) | (info.AuthID & 0x0F)), 1)
+    fmt.Printf("\nb2 = %T :: %s", b2, b2)
     b3 := append(b1, b2...)
-    fmt.Printf("\nm1 = %T :: %s", b3)
+    fmt.Printf("\nm1 = %T :: %s", b3, b3)
 	m1 := b3
 
     c1 := toBytes(uint((info.C_ID<<4 | 0x0F & (info.F_ID>>2))), 4)
