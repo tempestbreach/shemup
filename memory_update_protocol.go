@@ -134,7 +134,7 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
 
     b1 := info.UID
     fmt.Printf("\ninfo.UID = %T", b1)
-    b2 := toBytes(uint((info.ID<<4)|(info.AuthID&0x0F)), 1)
+    b2 := toBytes(uint((info.ID << 4) | (info.AuthID & 0x0F)), 18)
     fmt.Printf("\nb2 = %T", b2)
     b3 := append(b1, b2...)
     fmt.Printf("\nm1 = %T", b3)
