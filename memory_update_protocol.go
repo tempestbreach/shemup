@@ -136,18 +136,24 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
     fmt.Println(info.ID)
 
     b1 := info.UID
-    fmt.Printf("\ninfo.UID = %T", b1)
+    fmt.Printf("info.UID = %T\n", b1)
     fmt.Println(b1)
-    b2 := ((info.ID << 4) | (info.AuthID & 0x0F))
-    fmt.Printf("\nb2: %T", b2)
+    b2 := info.ID << 4
+    fmt.Printf("b2: %T\n", b2)
     fmt.Println(b2)
-    b3 := toBytes(uint(b2), 16)
-    fmt.Printf("\nb3 = %T", b3)
+    b3 := info.AuthID & 0x0F
+    fmt.Printf("b3 = %T\n", b3)
     fmt.Println(b3)
-    b4 := append(b1, b3...)
-    fmt.Printf("\nm1 = %T", b4)
+    b4 := b2 | b3
+    fmt.Printf("b4 = %T\n", b4)
     fmt.Println(b4)
-	m1 := b4
+    b5 := toBytes(uint(b4), 16)
+    fmt.Printf("b5 = %T\n", b5)
+    fmt.Println(b5)
+    b6 := append(b1, b5...)
+    fmt.Printf("b6 = %T\n", b6)
+    fmt.Println(b6)
+	m1 := b6
 
     c1 := toBytes(uint((info.C_ID<<4 | 0x0F & (info.F_ID>>2))), 16)
     c2 := toBytes(uint((info.F_ID<<6 & 0x03)), 16)
