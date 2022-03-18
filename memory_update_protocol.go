@@ -213,6 +213,7 @@ func GenerateMessageBasic(info MemoryUpdateInfo) MemoryUpdateMessage {
 // }
 
 func toBytes(d int, size uint64) []byte {
+    fmt.Println("Converting to bytes: %d with size %d", d, size)
     n := uint64(d)
     bs := make([]byte, size)
     binary.BigEndian.PutUint64(bs, n)
