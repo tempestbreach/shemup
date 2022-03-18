@@ -147,7 +147,7 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
     b4 := b2 | b3
     fmt.Printf("b4 = %T\n", b4)
     fmt.Println(b4)
-    b5 := toBytes(uint(b4), 16)
+    b5 := toBytes(uint(b4), 1)
     fmt.Printf("b5 = %T\n", b5)
     fmt.Println(b5)
     b6 := append(b1, b5...)
@@ -155,8 +155,8 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
     fmt.Println(b6)
 	m1 := b6
 
-    c1 := toBytes(uint((info.C_ID<<4 | 0x0F & (info.F_ID>>2))), 16)
-    c2 := toBytes(uint((info.F_ID<<6 & 0x03)), 16)
+    c1 := toBytes(uint((info.C_ID<<4 | 0x0F & (info.F_ID>>2))), 4)
+    c2 := toBytes(uint((info.F_ID<<6 & 0x03)), 1)
     c3 := []byte("00000000000")
     c4 := info.KEY_NEW
     f1 := append(c1, c2...)
@@ -173,7 +173,7 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
         fmt.Println(err)
     }
 
-    e1 := toBytes(uint(info.C_ID << 4 | 0x08), 16)
+    e1 := toBytes(uint(info.C_ID << 4 | 0x08), 4)
     e2 := append(e1, []byte("000000000000")...)
     e3, err := encryptECB(k3, e2)
     if err != nil {
@@ -294,12 +294,17 @@ func GenerateMessageBasic(info MemoryUpdateInfo) MemoryUpdateMessage {
 // }
 
 func toBytes(d uint, size uint64) []byte {
-    fmt.Printf("Converting to bytes: %d with size %d\n", d, size)
-    n := uint64(d)
-    bs := make([]byte, size)
-    binary.BigEndian.PutUint64(bs, n)
-
-    return bs
+    // fmt.Printf("Converting to bytes: %d with size %d\n", d, size)
+    // n := uint64(d)
+    // bs := make([]byte, size)
+    // binary.BigEndian.PutUint64(bs, n)
+    //
+    // return bs
+    // buf := make([]byte, binary.MaxVarintLen64)
+	// n := binary.PutUvarint(buf, uint64(z))
+    buf := make([]byte, size)
+	n := binary.PutUvarint(buf, uint64(d))
+    return buf[:n]
 }
 
 // func XORBytes(a, b []byte) ([]byte, error) {
