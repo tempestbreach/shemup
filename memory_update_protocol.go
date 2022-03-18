@@ -128,24 +128,38 @@ func mpKDF(k, c []byte) []byte {
 
 func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_MAC_C []byte) MemoryUpdateMessage {
 	k1 := mpKDF(info.KEY_AuthID, KEY_UPDATE_ENC_C)
+    fmt.Println(len(k1))
 	k2 := mpKDF(info.KEY_AuthID, KEY_UPDATE_MAC_C)
+    fmt.Println(len(k2))
 	k3 := mpKDF(info.KEY_NEW, KEY_UPDATE_ENC_C)
+    fmt.Println(len(k3))
 	k4 := mpKDF(info.KEY_NEW, KEY_UPDATE_MAC_C)
+    fmt.Println(len(k4))
 
     o1 := toBytes(uint((info.ID<<4|info.AuthID&15)), 1)
+    fmt.Println(len(o1))
     m1 := append(info.UID, o1...)
+    fmt.Println(len(m1))
 
     o2 := toBytes(uint((info.C_ID<<4|15&(info.F_ID>>2))), 4)
+    fmt.Println(len(o2))
     o3 := toBytes(uint((info.F_ID<<6&3)), 1)
+    fmt.Println(len(o3))
     o4 := make([]byte, 11)
+    fmt.Println(len(o4))
     f1 := append(o2, o3...)
+    fmt.Println(len(f1))
     f1 = append(f1, o4...)
+    fmt.Println(len(f1))
     f1 = append(f1, info.KEY_NEW...)
+    fmt.Println(len(f1))
     f2 := make([]byte, 16)
+    fmt.Println(len(f2))
 	m2, err := encryptCBC(k1, f1, f2)
     if err != nil {
         fmt.Println(err)
     }
+    fmt.Println(len(m2))
 
     f3 := append(m1, m2...)
 	m3, err := generateCMAC(k2, f3)
@@ -178,6 +192,83 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
 
     return mum
 }
+
+
+
+func GenerateMessageBasic(info MemoryUpdateInfo) MemoryUpdateMessage {
+    d1, err := hex.DecodeString("010153484500800000000000000000B0")
+    d2, err := hex.DecodeString("010253484500800000000000000000B0")
+    if err != nil {
+        fmt.Println(err)
+    }
+
+    mum := generateMessage(info, d1, d2)
+    return mum
+}
+
+
+
+// func generate_message(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_MAC_C []byte) MemoryUpdateMessage {
+// 	k1 := mp_kdf(info.KEY_AuthID, KEY_UPDATE_ENC_C)
+// 	k2 := mp_kdf(info.KEY_AuthID, KEY_UPDATE_MAC_C)
+// 	k3 := mp_kdf(info.KEY_NEW, KEY_UPDATE_ENC_C)
+// 	k4 := mp_kdf(info.KEY_NEW, KEY_UPDATE_MAC_C)
+// 	m1 := info.UID + (info.ID<<4|info.AuthID&15).to_bytes(1, "big")
+// 	m2 := encrypt_cbc(k1, (info.C_ID<<4|15&(info.F_ID>>2)).to_bytes(4, "big")+(info.F_ID<<6&3).to_bytes(1, "big")+bytes(func(repeated []int, n int) (result []int) {
+// 		for i := 0; i < n; i++ {
+// 			result = append(result, repeated...)
+// 		}
+// 		return result
+// 	}([]int{0}, 11))+info.KEY_NEW, bytes([]int{0}*16))
+// 	m3 := generate_cmac(k2, m1+m2)
+// 	m4 := m1 + encrypt_ecb(k3, (info.C_ID<<4|8).to_bytes(4, "big")+bytes(func(repeated []int, n int) (result []int) {
+// 		for i := 0; i < n; i++ {
+// 			result = append(result, repeated...)
+// 		}
+// 		return result
+// 	}([]int{0}, 12)))
+// 	m5 := generate_cmac(k4, m4)
+// 	return MemoryUpdateMessage(m1, m2, m3, m4, m5)
+// }
+
+func toBytes(d uint, size uint64) []byte {
+    // fmt.Printf("Converting to bytes: %d with size %d\n", d, size)
+    // n := uint64(d)
+    // bs := make([]byte, size)
+    // binary.BigEndian.PutUint64(bs, n)
+    //
+    // return bs
+    // buf := make([]byte, binary.MaxVarintLen64)
+	// n := binary.PutUvarint(buf, uint64(z))
+    buf := make([]byte, size)
+	binary.PutUvarint(buf, uint64(d))
+
+    return buf
+}
+
+func validKey(key []byte) bool {
+    k := len(key)
+    switch k {
+    default:
+        return false
+    case 16, 24, 32:
+        return true
+    }
+}
+
+// func XORBytes(a, b []byte) ([]byte, error) {
+// 	if len(a) != len(b) {
+// 		return nil, fmt.Errorf("length of byte slices is not equivalent: %d != %d", len(a), len(b))
+// 	}
+//
+// 	buf := make([]byte, len(a))
+//
+// 	for i := range a {
+// 		buf[i] = a[i] ^ b[i]
+// 	}
+//
+// 	return buf, nil
+// }
 
 // func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_MAC_C []byte) MemoryUpdateMessage {
 // 	k1 := mpKDF(info.KEY_AuthID, KEY_UPDATE_ENC_C)
@@ -319,78 +410,3 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
 //     }
 // 	return mum
 // }
-
-func GenerateMessageBasic(info MemoryUpdateInfo) MemoryUpdateMessage {
-    d1, err := hex.DecodeString("010153484500800000000000000000B0")
-    d2, err := hex.DecodeString("010253484500800000000000000000B0")
-    if err != nil {
-        fmt.Println(err)
-    }
-
-    mum := generateMessage(info, d1, d2)
-    return mum
-}
-
-
-
-// func generate_message(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_MAC_C []byte) MemoryUpdateMessage {
-// 	k1 := mp_kdf(info.KEY_AuthID, KEY_UPDATE_ENC_C)
-// 	k2 := mp_kdf(info.KEY_AuthID, KEY_UPDATE_MAC_C)
-// 	k3 := mp_kdf(info.KEY_NEW, KEY_UPDATE_ENC_C)
-// 	k4 := mp_kdf(info.KEY_NEW, KEY_UPDATE_MAC_C)
-// 	m1 := info.UID + (info.ID<<4|info.AuthID&15).to_bytes(1, "big")
-// 	m2 := encrypt_cbc(k1, (info.C_ID<<4|15&(info.F_ID>>2)).to_bytes(4, "big")+(info.F_ID<<6&3).to_bytes(1, "big")+bytes(func(repeated []int, n int) (result []int) {
-// 		for i := 0; i < n; i++ {
-// 			result = append(result, repeated...)
-// 		}
-// 		return result
-// 	}([]int{0}, 11))+info.KEY_NEW, bytes([]int{0}*16))
-// 	m3 := generate_cmac(k2, m1+m2)
-// 	m4 := m1 + encrypt_ecb(k3, (info.C_ID<<4|8).to_bytes(4, "big")+bytes(func(repeated []int, n int) (result []int) {
-// 		for i := 0; i < n; i++ {
-// 			result = append(result, repeated...)
-// 		}
-// 		return result
-// 	}([]int{0}, 12)))
-// 	m5 := generate_cmac(k4, m4)
-// 	return MemoryUpdateMessage(m1, m2, m3, m4, m5)
-// }
-
-func toBytes(d uint, size uint64) []byte {
-    // fmt.Printf("Converting to bytes: %d with size %d\n", d, size)
-    // n := uint64(d)
-    // bs := make([]byte, size)
-    // binary.BigEndian.PutUint64(bs, n)
-    //
-    // return bs
-    // buf := make([]byte, binary.MaxVarintLen64)
-	// n := binary.PutUvarint(buf, uint64(z))
-    buf := make([]byte, size)
-	binary.PutUvarint(buf, uint64(d))
-
-    return buf
-}
-
-// func XORBytes(a, b []byte) ([]byte, error) {
-// 	if len(a) != len(b) {
-// 		return nil, fmt.Errorf("length of byte slices is not equivalent: %d != %d", len(a), len(b))
-// 	}
-//
-// 	buf := make([]byte, len(a))
-//
-// 	for i := range a {
-// 		buf[i] = a[i] ^ b[i]
-// 	}
-//
-// 	return buf, nil
-// }
-
-func validKey(key []byte) bool {
-    k := len(key)
-    switch k {
-    default:
-        return false
-    case 16, 24, 32:
-        return true
-    }
-}
