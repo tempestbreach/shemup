@@ -155,13 +155,21 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
     fmt.Println(b6)
 	m1 := b6
 
-    c1 := toBytes(uint((info.C_ID<<4 | 0x0F & (info.F_ID>>2))), 4)
-    c2 := toBytes(uint((info.F_ID<<6 & 0x03)), 1)
-    c3 := []byte("00000000000")
-    c4 := info.KEY_NEW
-    f1 := append(c1, c2...)
-    f1 = append(f1, c3...)
-    f1 = append(f1, c4...)
+    fmt.Println("C_ID: ", info.C_ID, "\n")
+    fmt.Println("F_ID: ", info.F_ID, "\n")
+    c1 := (info.C_ID<<4 | 0x0F & (info.F_ID>>2))
+    fmt.Println("c1: ", c1, "\n")
+    c2 := uint(c1)
+    fmt.Println("c2: ", c2, "\n")
+    c3 := toBytes(c2, 4)
+    fmt.Println("c3: ", c3, "\n")
+    // c1 := toBytes(uint((info.C_ID<<4 | 0x0F & (info.F_ID>>2))), 4)
+    c4 := toBytes(uint((info.F_ID<<6 & 0x03)), 1)
+    c5 := []byte("00000000000")
+    c6 := info.KEY_NEW
+    f1 := append(c3, c4...)
+    f1 = append(f1, c5...)
+    f1 = append(f1, c6...)
 	m2, err := encryptCBC(k1, f1, []byte("0000000000000000"))
     if err != nil {
         fmt.Println(err)
