@@ -155,6 +155,9 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
     fmt.Println(len(f1))
     f2 := make([]byte, 16)
     fmt.Println(len(f2))
+    fmt.Println(k1)
+    fmt.Println(f1)
+    fmt.Println(f2)
 	m2, err := encryptCBC(k1, f1, f2)
     if err != nil {
         fmt.Println(err)
