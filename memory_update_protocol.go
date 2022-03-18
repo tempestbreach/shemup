@@ -107,7 +107,7 @@ func xorBytes(a, b []byte) []byte {
 func mpCompress(data []byte) []byte {
     l := len(data)
     CHUNK_LEN := 16      // 128bit (16byte) chunks
-    out := []byte("0000000000000000")
+    out := make([]byte, 16)
 
     for i := 0; i < l; i += CHUNK_LEN {
 		chunk := data[i : i+CHUNK_LEN]
