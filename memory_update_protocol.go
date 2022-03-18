@@ -132,12 +132,14 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
 	k3 := mpKDF(info.KEY_NEW, KEY_UPDATE_ENC_C)
 	k4 := mpKDF(info.KEY_NEW, KEY_UPDATE_MAC_C)
 
-    b1 := toBytes((info.ID<<4)|(info.AuthID&0x0F), 1)
-	m1 := append(info.UID, b1...)
+    b1 := info.UID
+    b2 := toBytes(uint((info.ID<<4)|(info.AuthID&0x0F)), 1)
+    b3 := append(b1, b2...)
+	m1 := b3
     fmt.Println("Finished first toBytes")
 
-    c1 := toBytes((info.C_ID<<4 | 0x0F & (info.F_ID>>2)), 4)
-    c2 := toBytes((info.F_ID<<6 & 0x03), 1)
+    c1 := toBytes(uint((info.C_ID<<4 | 0x0F & (info.F_ID>>2))), 4)
+    c2 := toBytes(uint((info.F_ID<<6 & 0x03)), 1)
     c3 := []byte("00000000000")
     c4 := info.KEY_NEW
     f1 := append(c1, c2...)
@@ -154,7 +156,7 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
         fmt.Println(err)
     }
 
-    e1 := toBytes(info.C_ID << 4 | 0x08, 4)
+    e1 := toBytes(uint(info.C_ID << 4 | 0x08), 4)
     e2 := append(e1, []byte("000000000000")...)
     e3, err := encryptECB(k3, e2)
     if err != nil {
@@ -211,7 +213,7 @@ func GenerateMessageBasic(info MemoryUpdateInfo) MemoryUpdateMessage {
 // 	return MemoryUpdateMessage(m1, m2, m3, m4, m5)
 // }
 
-func toBytes(d int, size uint64) []byte {
+func toBytes(d uint, size uint64) []byte {
     fmt.Printf("\nConverting to bytes: %d with size %d", d, size)
     n := uint64(d)
     bs := make([]byte, size)
