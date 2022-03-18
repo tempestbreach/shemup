@@ -127,7 +127,9 @@ func mpKDF(k, c []byte) []byte {
 }
 
 func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_MAC_C []byte) MemoryUpdateMessage {
-	k1 := mpKDF(info.KEY_AuthID, KEY_UPDATE_ENC_C)
+    fmt.Println("Within2: ", info.KEY_NEW)
+
+    k1 := mpKDF(info.KEY_AuthID, KEY_UPDATE_ENC_C)
     fmt.Println(len(k1))
 	k2 := mpKDF(info.KEY_AuthID, KEY_UPDATE_MAC_C)
     fmt.Println(len(k2))
@@ -135,6 +137,8 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
     fmt.Println(len(k3))
 	k4 := mpKDF(info.KEY_NEW, KEY_UPDATE_MAC_C)
     fmt.Println(len(k4))
+
+    fmt.Println(len(info.KEY_NEW))
 
     o1 := toBytes(uint((info.ID<<4|info.AuthID&15)), 1)
     fmt.Println(len(o1))
@@ -210,6 +214,8 @@ func GenerateMessageBasic(info MemoryUpdateInfo) MemoryUpdateMessage {
     if err != nil {
         fmt.Println(err)
     }
+
+    fmt.Println("Within1: ", info.KEY_NEW)
 
     mum := generateMessage(info, d1, d2)
     return mum
