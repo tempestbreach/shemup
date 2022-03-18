@@ -311,8 +311,9 @@ func toBytes(d uint, size uint64) []byte {
     // buf := make([]byte, binary.MaxVarintLen64)
 	// n := binary.PutUvarint(buf, uint64(z))
     buf := make([]byte, size)
-	n := binary.PutUvarint(buf, uint64(d))
-    return buf[:n]
+	binary.PutUvarint(buf, uint64(d))
+
+    return buf
 }
 
 // func XORBytes(a, b []byte) ([]byte, error) {
