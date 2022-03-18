@@ -179,6 +179,7 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
 }
 
 func GenerateMessageBasic(info MemoryUpdateInfo) MemoryUpdateMessage {
+    fmt.Println("FUCK, WTF")
     d1, err := hex.DecodeString("010153484500800000000000000000B0")
     d2, err := hex.DecodeString("010253484500800000000000000000B0")
     if err != nil {
