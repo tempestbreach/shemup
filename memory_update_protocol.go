@@ -132,7 +132,7 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
 	k3 := mpKDF(info.KEY_NEW, KEY_UPDATE_ENC_C)
 	k4 := mpKDF(info.KEY_NEW, KEY_UPDATE_MAC_C)
 
-    b1 := toBytes((info.ID<<4|info.AuthID&0x0F), 1)
+    b1 := toBytes((info.ID<<4|info.AuthID&0x0F), 4)
 	m1 := append(info.UID, b1...)
     fmt.Println("Finished first toBytes")
 
