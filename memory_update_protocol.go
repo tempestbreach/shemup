@@ -132,62 +132,36 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
 	k3 := mpKDF(info.KEY_NEW, KEY_UPDATE_ENC_C)
 	k4 := mpKDF(info.KEY_NEW, KEY_UPDATE_MAC_C)
 
-    fmt.Println(info.AuthID)
-    fmt.Println(info.ID)
+    o1 := toBytes(uint((info.ID<<4|info.AuthID&15)), 1)
+    m1 := append(info.UID, o1...)
 
-    b1 := info.UID
-    fmt.Printf("info.UID = %T\n", b1)
-    fmt.Println(b1)
-    b2 := info.ID << 4
-    fmt.Printf("b2: %T\n", b2)
-    fmt.Println(b2)
-    b3 := info.AuthID & 0x0F
-    fmt.Printf("b3 = %T\n", b3)
-    fmt.Println(b3)
-    b4 := b2 | b3
-    fmt.Printf("b4 = %T\n", b4)
-    fmt.Println(b4)
-    b5 := toBytes(uint(b4), 1)
-    fmt.Printf("b5 = %T\n", b5)
-    fmt.Println(b5)
-    b6 := append(b1, b5...)
-    fmt.Printf("b6 = %T\n", b6)
-    fmt.Println(b6)
-	m1 := b6
-
-    fmt.Println("C_ID: ", info.C_ID, "\n")
-    fmt.Println("F_ID: ", info.F_ID, "\n")
-    c1 := (info.C_ID<<4 | 0x0F & (info.F_ID>>2))
-    fmt.Println("c1: ", c1, "\n")
-    c2 := uint(c1)
-    fmt.Println("c2: ", c2, "\n")
-    c3 := toBytes(c2, 4)
-    fmt.Println("c3: ", c3, "\n")
-    // c1 := toBytes(uint((info.C_ID<<4 | 0x0F & (info.F_ID>>2))), 4)
-    c4 := toBytes(uint((info.F_ID<<6 & 0x03)), 1)
-    c5 := []byte("00000000000")
-    c6 := info.KEY_NEW
-    f1 := append(c3, c4...)
-    f1 = append(f1, c5...)
-    f1 = append(f1, c6...)
-	m2, err := encryptCBC(k1, f1, []byte("0000000000000000"))
+    o2 := toBytes(uint((info.C_ID<<4|15&(info.F_ID>>2))), 4)
+    o3 := toBytes(uint((info.F_ID<<6&3)), 1)
+    o4 := make([]byte, 11)
+    f1 := append(o2, o3...)
+    f1 = append(f1, o4...)
+    f1 = append(f1, info.KEY_NEW...)
+    f2 := make([]byte, 16)
+	m2, err := encryptCBC(k1, f1, f2)
     if err != nil {
         fmt.Println(err)
     }
 
-    d1 := append(m1, m2...)
-	m3, err := generateCMAC(k2, d1)
+    f3 := append(m1, m2...)
+	m3, err := generateCMAC(k2, f3)
     if err != nil {
         fmt.Println(err)
     }
 
-    e1 := toBytes(uint(info.C_ID << 4 | 0x08), 4)
-    e2 := append(e1, []byte("000000000000")...)
-    e3, err := encryptECB(k3, e2)
+    o5 := toBytes(uint((info.C_ID<<4|8)), 4)
+    o6 := make([]byte, 12)
+    f4 := append(o5, o6...)
+
+    o7, err := encryptECB(k3, f4)
     if err != nil {
         fmt.Println(err)
     }
-	m4 := append(m1, e3...)
+	m4 := append(m1, o7...)
 
 	m5, err := generateCMAC(k4, m4)
     if err != nil {
@@ -201,8 +175,87 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
         M4: m4,
         M5: m5,
     }
-	return mum
+
+    return mum
 }
+
+// func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_MAC_C []byte) MemoryUpdateMessage {
+// 	k1 := mpKDF(info.KEY_AuthID, KEY_UPDATE_ENC_C)
+// 	k2 := mpKDF(info.KEY_AuthID, KEY_UPDATE_MAC_C)
+// 	k3 := mpKDF(info.KEY_NEW, KEY_UPDATE_ENC_C)
+// 	k4 := mpKDF(info.KEY_NEW, KEY_UPDATE_MAC_C)
+//
+//     fmt.Println(info.AuthID)
+//     fmt.Println(info.ID)
+//
+//     b1 := info.UID
+//     fmt.Printf("info.UID = %T\n", b1)
+//     fmt.Println(b1)
+//     b2 := info.ID << 4
+//     fmt.Printf("b2: %T\n", b2)
+//     fmt.Println(b2)
+//     b3 := info.AuthID & 0x0F
+//     fmt.Printf("b3 = %T\n", b3)
+//     fmt.Println(b3)
+//     b4 := b2 | b3
+//     fmt.Printf("b4 = %T\n", b4)
+//     fmt.Println(b4)
+//     b5 := toBytes(uint(b4), 1)
+//     fmt.Printf("b5 = %T\n", b5)
+//     fmt.Println(b5)
+//     b6 := append(b1, b5...)
+//     fmt.Printf("b6 = %T\n", b6)
+//     fmt.Println(b6)
+// 	m1 := b6
+//
+//     fmt.Println("C_ID: ", info.C_ID, "\n")
+//     fmt.Println("F_ID: ", info.F_ID, "\n")
+//     c1 := (info.C_ID<<4 | 0x0F & (info.F_ID>>2))
+//     fmt.Println("c1: ", c1, "\n")
+//     c2 := uint(c1)
+//     fmt.Println("c2: ", c2, "\n")
+//     c3 := toBytes(c2, 4)
+//     fmt.Println("c3: ", c3, "\n")
+//     // c1 := toBytes(uint((info.C_ID<<4 | 0x0F & (info.F_ID>>2))), 4)
+//     c4 := toBytes(uint((info.F_ID<<6 & 0x03)), 1)
+//     c5 := []byte("00000000000")
+//     c6 := info.KEY_NEW
+//     f1 := append(c3, c4...)
+//     f1 = append(f1, c5...)
+//     f1 = append(f1, c6...)
+// 	m2, err := encryptCBC(k1, f1, []byte("0000000000000000"))
+//     if err != nil {
+//         fmt.Println(err)
+//     }
+//
+//     d1 := append(m1, m2...)
+// 	m3, err := generateCMAC(k2, d1)
+//     if err != nil {
+//         fmt.Println(err)
+//     }
+//
+//     e1 := toBytes(uint(info.C_ID << 4 | 0x08), 4)
+//     e2 := append(e1, []byte("000000000000")...)
+//     e3, err := encryptECB(k3, e2)
+//     if err != nil {
+//         fmt.Println(err)
+//     }
+// 	m4 := append(m1, e3...)
+//
+// 	m5, err := generateCMAC(k4, m4)
+//     if err != nil {
+//         fmt.Println(err)
+//     }
+//
+//     mum := MemoryUpdateMessage{
+//         M1: m1,
+//         M2: m2,
+//         M3: m3,
+//         M4: m4,
+//         M5: m5,
+//     }
+// 	return mum
+// }
 
 // func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_MAC_C []byte) MemoryUpdateMessage {
 // 	k1 := mpKDF(info.KEY_AuthID, KEY_UPDATE_ENC_C)
@@ -277,6 +330,8 @@ func GenerateMessageBasic(info MemoryUpdateInfo) MemoryUpdateMessage {
     mum := generateMessage(info, d1, d2)
     return mum
 }
+
+
 
 // func generate_message(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_MAC_C []byte) MemoryUpdateMessage {
 // 	k1 := mp_kdf(info.KEY_AuthID, KEY_UPDATE_ENC_C)
