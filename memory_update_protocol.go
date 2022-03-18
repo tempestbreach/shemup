@@ -66,7 +66,7 @@ func encryptCBC(k, v, iv []byte) ([]byte, error) {
         return nil, err
     }
 
-    ciphertext := make([]byte, aes.BlockSize + len(v))
+    ciphertext := make([]byte, len(v))
     // iv := ciphertext[:aes.BlockSize]
     // if _, err := io.ReadFull(rand.Reader, iv); err != nil {
     //     return nil, err
