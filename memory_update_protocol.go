@@ -42,7 +42,7 @@ func encryptECB(k, v []byte) ([]byte, error){
     }
 
     if len(v)%block.BlockSize() != 0 {
-        return nil, fmt.Errorf("source data must be an integer multiple of %d; current length: $d", block.BlockSize(), len(v))
+        return nil, fmt.Errorf("source data must be an integer multiple of %d; current length: %d", block.BlockSize(), len(v))
     }
 
     var dst []byte
