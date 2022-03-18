@@ -130,45 +130,28 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
     fmt.Println("Within2: ", info.KEY_NEW)
 
     k1 := mpKDF(info.KEY_AuthID, KEY_UPDATE_ENC_C)
-    fmt.Println(len(k1))
 	k2 := mpKDF(info.KEY_AuthID, KEY_UPDATE_MAC_C)
-    fmt.Println(len(k2))
 	k3 := mpKDF(info.KEY_NEW, KEY_UPDATE_ENC_C)
-    fmt.Println(len(k3))
 	k4 := mpKDF(info.KEY_NEW, KEY_UPDATE_MAC_C)
-    fmt.Println(len(k4))
-
-    fmt.Println(len(info.KEY_NEW))
+    fmt.Println(k1)
+    fmt.Println(k2)
+    fmt.Println(k3)
+    fmt.Println(k4)
 
     o1 := toBytes(uint((info.ID<<4|info.AuthID&15)), 1)
-    fmt.Println(len(o1))
     m1 := append(info.UID, o1...)
-    fmt.Println(len(m1))
 
     o2 := toBytes(uint((info.C_ID<<4|15&(info.F_ID>>2))), 4)
-    fmt.Println(len(o2))
     o3 := toBytes(uint((info.F_ID<<6&3)), 1)
-    fmt.Println(len(o3))
     o4 := make([]byte, 11)
-    fmt.Println(len(o4))
     f1 := append(o2, o3...)
-    fmt.Println(len(f1))
     f1 = append(f1, o4...)
-    fmt.Println(len(f1))
     f1 = append(f1, info.KEY_NEW...)
-    fmt.Println(len(f1))
     f2 := make([]byte, 16)
-    fmt.Println(len(f2))
-    fmt.Println(k1)
-    fmt.Println(f1)
-    fmt.Println(f2)
 	m2, err := encryptCBC(k1, f1, f2)
     if err != nil {
         fmt.Println(err)
     }
-    fmt.Println(len(m2))
-    fmt.Println(m2)
-    fmt.Println(hex.EncodeToString(m2))
 
     f3 := append(m1, m2...)
 	m3, err := generateCMAC(k2, f3)
@@ -179,7 +162,6 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
     o5 := toBytes(uint((info.C_ID<<4|8)), 4)
     o6 := make([]byte, 12)
     f4 := append(o5, o6...)
-
     o7, err := encryptECB(k3, f4)
     if err != nil {
         fmt.Println(err)
