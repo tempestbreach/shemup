@@ -10,7 +10,6 @@ import(
     "encoding/hex"
 
     "github.com/chmike/cmac-go"
-    "github.com/andreburgaud/crypt2go/ecb"
 )
 
 // var (
@@ -44,41 +43,28 @@ type MemoryUpdateMessage struct {
 
 // func(m *MemoryUpdateMessage) ToMap()
 
-// func encryptECB(k, v []byte) ([]byte, error){
-//     if !validKey(k) {
-//         return nil, fmt.Errorf("length of the key is invalid: %d\n", len(k))
-//     }
-//
-    // block, err := aes.NewCipher(k)
-    // if err != nil {
-    //     return nil, err
-    // }
-//
-//     if len(v)%block.BlockSize() != 0 {
-//         return nil, fmt.Errorf("source data must be an integer multiple of %d; current length: %d\n", block.BlockSize(), len(v))
-//     }
-//
-//     var dst []byte
-//     tmpData := make([]byte, block.BlockSize())
-//     for i := 0; i < len(v); i += block.BlockSize() {
-//         block.Encrypt(tmpData, v[i:i+block.BlockSize()])
-//         dst = append(dst, tmpData...)
-//     }
-//
-//     return dst, nil
-// }
+func encryptECB(k, v []byte) ([]byte, error){
+    if !validKey(k) {
+        return nil, fmt.Errorf("length of the key is invalid: %d\n", len(k))
+    }
 
-func encryptECB(k, v []byte) ([]byte, error) {
     block, err := aes.NewCipher(k)
     if err != nil {
         return nil, err
     }
-    mode := ecb.NewECBEncrypter(block)
 
-    ciphertext := make([]byte, len(v))
-    mode.CryptBlocks(ciphertext, v)
+    if len(v)%block.BlockSize() != 0 {
+        return nil, fmt.Errorf("source data must be an integer multiple of %d; current length: %d\n", block.BlockSize(), len(v))
+    }
 
-    return ciphertext, err
+    var dst []byte
+    tmpData := make([]byte, block.BlockSize())
+    for i := 0; i < len(v); i += block.BlockSize() {
+        block.Encrypt(tmpData, v[i:i+block.BlockSize()])
+        dst = append(dst, tmpData...)
+    }
+
+    return dst, nil
 }
 
 // func encryptCBC(k, v, iv []byte) ([]byte, error) {
@@ -178,11 +164,11 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
 	k3 := mpKDF(info.KEY_NEW, KEY_UPDATE_ENC_C)
 	k4 := mpKDF(info.KEY_NEW, KEY_UPDATE_MAC_C)
 
-    o1 := toBytes(uint((info.ID<<4|info.AuthID&15)), 1)
+    o1 := toBytes(uint( (info.ID << 4) | (info.AuthID & 0x0F) ), 1)
     m1 := append(info.UID, o1...)
 
-    o2 := toBytes(uint((info.C_ID<<4|15&(info.F_ID>>2))), 4)
-    o3 := toBytes(uint((info.F_ID<<6&3)), 1)
+    o2 := toBytes(uint((info.C_ID << 4) | (0x0F & (info.F_ID >> 2))), 4)
+    o3 := toBytes(uint((info.F_ID << 6) & 0x03), 1)
     o4 := make([]byte, 11)
     f1 := append(o2, o3...)
     f1 = append(f1, o4...)
@@ -199,7 +185,7 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
         fmt.Println(err)
     }
 
-    o5 := toBytes(uint((info.C_ID<<4|8)), 4)
+    o5 := toBytes(uint((info.C_ID << 4) | 0x08), 4)
     fmt.Println(o5)
     fmt.Println(string(o5))
     o5H := hex.EncodeToString(o5)
