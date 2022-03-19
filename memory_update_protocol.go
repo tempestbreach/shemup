@@ -88,8 +88,6 @@ func encryptCBC(k, v, iv []byte) ([]byte, error) {
     mode := cipher.NewCBCEncrypter(block, iv)
     mode.CryptBlocks(ciphertext, v)
 
-    fmt.Println(v)
-    fmt.Println(ciphertext)
 
     return ciphertext, err
 }
@@ -163,11 +161,11 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
 	k3 := mpKDF(info.KEY_NEW, KEY_UPDATE_ENC_C)
 	k4 := mpKDF(info.KEY_NEW, KEY_UPDATE_MAC_C)
 
-    o1 := toBytes(uint64( (info.ID << 4) | (info.AuthID & 0x0F) ), 1)
+    o1 := toBytes(( (info.ID << 4) | (info.AuthID & 0x0F) ), 1)
     m1 := append(info.UID, o1...)
 
-    o2 := toBytes(uint64((info.C_ID << 4) | (0x0F & (info.F_ID >> 2))), 4)
-    o3 := toBytes(uint64((info.F_ID << 6) & 0x03), 1)
+    o2 := toBytes((info.C_ID << 4) | (0x0F & (info.F_ID >> 2)), 4)
+    o3 := toBytes(((info.F_ID << 6) & 0x03), 1)
     o4 := make([]byte, 11)
     f1 := append(o2, o3...)
     f1 = append(f1, o4...)
@@ -184,7 +182,7 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
         fmt.Println(err)
     }
 
-    o5 := toBytes(uint64((info.C_ID << 4) | 0x08), 4)
+    o5 := toBytes(((info.C_ID << 4) | 0x08), 4)
     o6 := make([]byte, 12)
     f4 := append(o5, o6...)
     o7, err := encryptECB(k3, f4)
