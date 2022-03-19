@@ -2,13 +2,25 @@ package shemup
 
 import(
     "fmt"
-    // "bytes"
+    "bytes"
+    "errors"
     "crypto/aes"
     "crypto/cipher"
     "encoding/binary"
     "encoding/hex"
 
     "github.com/chmike/cmac-go"
+)
+
+var (
+	// ErrInvalidBlockSize indicates hash blocksize <= 0.
+	ErrInvalidBlockSize = errors.New("invalid blocksize")
+
+	// ErrInvalidPKCS7Data indicates bad input to PKCS7 pad or unpad.
+	ErrInvalidPKCS7Data = errors.New("invalid PKCS7 data (empty or not padded)")
+
+	// ErrInvalidPKCS7Padding indicates PKCS7 unpad fails to bad input.
+	ErrInvalidPKCS7Padding = errors.New("invalid padding on input")
 )
 
 type MemoryUpdateInfo struct {
@@ -66,6 +78,11 @@ func encryptCBC(k, v, iv []byte) ([]byte, error) {
         return nil, err
     }
 
+    v, err = pkcs7Pad(v, block.BlockSize())
+    if err != nil {
+        return nil, err
+    }
+
     ciphertext := make([]byte, len(v))
 
     mode := cipher.NewCBCEncrypter(block, iv)
@@ -75,6 +92,20 @@ func encryptCBC(k, v, iv []byte) ([]byte, error) {
     fmt.Println(ciphertext)
 
     return ciphertext, err
+}
+
+func pkcs7Pad(b []byte, blocksize int) ([]byte, error) {
+    if blocksize <= 0 {
+		return nil, ErrInvalidBlockSize
+	}
+	if b == nil || len(b) == 0 {
+		return nil, ErrInvalidPKCS7Data
+	}
+	n := blocksize - (len(b) % blocksize)
+	pb := make([]byte, len(b)+n)
+	copy(pb, b)
+	copy(pb[len(b):], bytes.Repeat([]byte{byte(n)}, n))
+	return pb, nil
 }
 
 func generateCMAC(k, m []byte) ([]byte, error) {
