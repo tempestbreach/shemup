@@ -27,10 +27,10 @@ type MemoryUpdateInfo struct {
     KEY_NEW         []byte
     KEY_AuthID      []byte
     UID             []byte
-    ID              uint64
-    AuthID          uint64
-    C_ID            uint64
-    F_ID            uint64
+    ID              int
+    AuthID          int
+    C_ID            int
+    F_ID            int
 }
 
 type MemoryUpdateMessage struct {
@@ -245,19 +245,15 @@ func GenerateMessageBasic(info MemoryUpdateInfo) MemoryUpdateMessage {
 // 	return MemoryUpdateMessage(m1, m2, m3, m4, m5)
 // }
 
-func toBytes(d uint64, size uint64) []byte {
-    // fmt.Printf("Converting to bytes: %d with size %d\n", d, size)
-    // n := uint64(d)
-    // bs := make([]byte, size)
-    // binary.BigEndian.PutUint64(bs, n)
-    //
-    // return bs
-    // buf := make([]byte, binary.MaxVarintLen64)
-	// n := binary.PutUvarint(buf, uint64(z))
-    buf := make([]byte, size)
-	binary.PutUvarint(buf, d)
+func toBytes(d int, size uint64) []byte {
+    fmt.Printf("Converting to bytes: %d with size %d\n", d, size)
+    bs := make([]byte, 2)
+    binary.BigEndian.PutUint16(bs, uint16(d))
 
-    return buf
+    bs2 := make([]byte, size - 2)
+    bs2 = append(bs2, bs...)
+
+    return bs2
 }
 
 func validKey(key []byte) bool {
