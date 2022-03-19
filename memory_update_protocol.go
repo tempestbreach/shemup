@@ -157,18 +157,17 @@ func mpKDF(k, c []byte) []byte {
 }
 
 func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_MAC_C []byte) MemoryUpdateMessage {
-    fmt.Println("Within2: ", info.KEY_NEW)
 
     k1 := mpKDF(info.KEY_AuthID, KEY_UPDATE_ENC_C)
 	k2 := mpKDF(info.KEY_AuthID, KEY_UPDATE_MAC_C)
 	k3 := mpKDF(info.KEY_NEW, KEY_UPDATE_ENC_C)
 	k4 := mpKDF(info.KEY_NEW, KEY_UPDATE_MAC_C)
 
-    o1 := toBytes(uint( (info.ID << 4) | (info.AuthID & 0x0F) ), 1)
+    o1 := toBytes(int64( (info.ID << 4) | (info.AuthID & 0x0F) ), 1)
     m1 := append(info.UID, o1...)
 
-    o2 := toBytes(uint((info.C_ID << 4) | (0x0F & (info.F_ID >> 2))), 4)
-    o3 := toBytes(uint((info.F_ID << 6) & 0x03), 1)
+    o2 := toBytes(int64((info.C_ID << 4) | (0x0F & (info.F_ID >> 2))), 4)
+    o3 := toBytes(int64((info.F_ID << 6) & 0x03), 1)
     o4 := make([]byte, 11)
     f1 := append(o2, o3...)
     f1 = append(f1, o4...)
@@ -185,7 +184,7 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
         fmt.Println(err)
     }
 
-    o5 := toBytes(uint((info.C_ID << 4) | 0x08), 4)
+    o5 := toBytes(int64((info.C_ID << 4) | 0x08), 4)
     o6 := make([]byte, 12)
     f4 := append(o5, o6...)
     o7, err := encryptECB(k3, f4)
@@ -248,7 +247,7 @@ func GenerateMessageBasic(info MemoryUpdateInfo) MemoryUpdateMessage {
 // 	return MemoryUpdateMessage(m1, m2, m3, m4, m5)
 // }
 
-func toBytes(d uint, size uint64) []byte {
+func toBytes(d int64, size uint64) []byte {
     // fmt.Printf("Converting to bytes: %d with size %d\n", d, size)
     // n := uint64(d)
     // bs := make([]byte, size)
@@ -258,7 +257,7 @@ func toBytes(d uint, size uint64) []byte {
     // buf := make([]byte, binary.MaxVarintLen64)
 	// n := binary.PutUvarint(buf, uint64(z))
     buf := make([]byte, size)
-	binary.PutUvarint(buf, uint64(d))
+	binary.PutVarint(buf, d)
 
     return buf
 }
