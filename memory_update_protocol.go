@@ -67,13 +67,12 @@ func encryptCBC(k, v, iv []byte) ([]byte, error) {
     }
 
     ciphertext := make([]byte, len(v))
-    // iv := ciphertext[:aes.BlockSize]
-    // if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-    //     return nil, err
-    // }
 
     mode := cipher.NewCBCEncrypter(block, iv)
     mode.CryptBlocks(ciphertext, v)
+
+    fmt.Println(v)
+    fmt.Println(ciphertext)
 
     return ciphertext, err
 }
@@ -133,10 +132,6 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
 	k2 := mpKDF(info.KEY_AuthID, KEY_UPDATE_MAC_C)
 	k3 := mpKDF(info.KEY_NEW, KEY_UPDATE_ENC_C)
 	k4 := mpKDF(info.KEY_NEW, KEY_UPDATE_MAC_C)
-    fmt.Println(string(k1))
-    fmt.Println(string(k2))
-    fmt.Println(string(k3))
-    fmt.Println(string(k4))
 
     o1 := toBytes(uint((info.ID<<4|info.AuthID&15)), 1)
     m1 := append(info.UID, o1...)
@@ -173,10 +168,6 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
         fmt.Println(err)
     }
 
-    fmt.Println(len(m2))
-    fmt.Println(m2)
-    fmt.Println(hex.EncodeToString(m2))
-
     mum := MemoryUpdateMessage{
         M1: m1,
         M2: m2,
@@ -196,8 +187,6 @@ func GenerateMessageBasic(info MemoryUpdateInfo) MemoryUpdateMessage {
     if err != nil {
         fmt.Println(err)
     }
-
-    fmt.Println("Within1: ", info.KEY_NEW)
 
     mum := generateMessage(info, d1, d2)
     return mum
