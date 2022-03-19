@@ -10,6 +10,7 @@ import(
     "encoding/hex"
 
     "github.com/chmike/cmac-go"
+    "github.com/andreburgaud/crypt2go/ecb"
 )
 
 // var (
@@ -43,28 +44,41 @@ type MemoryUpdateMessage struct {
 
 // func(m *MemoryUpdateMessage) ToMap()
 
-func encryptECB(k, v []byte) ([]byte, error){
-    if !validKey(k) {
-        return nil, fmt.Errorf("length of the key is invalid: %d\n", len(k))
-    }
+// func encryptECB(k, v []byte) ([]byte, error){
+//     if !validKey(k) {
+//         return nil, fmt.Errorf("length of the key is invalid: %d\n", len(k))
+//     }
+//
+    // block, err := aes.NewCipher(k)
+    // if err != nil {
+    //     return nil, err
+    // }
+//
+//     if len(v)%block.BlockSize() != 0 {
+//         return nil, fmt.Errorf("source data must be an integer multiple of %d; current length: %d\n", block.BlockSize(), len(v))
+//     }
+//
+//     var dst []byte
+//     tmpData := make([]byte, block.BlockSize())
+//     for i := 0; i < len(v); i += block.BlockSize() {
+//         block.Encrypt(tmpData, v[i:i+block.BlockSize()])
+//         dst = append(dst, tmpData...)
+//     }
+//
+//     return dst, nil
+// }
 
+func encryptECB(k, v []byte) ([]byte, error) {
     block, err := aes.NewCipher(k)
     if err != nil {
         return nil, err
     }
+    mode := ecb.NewECBEncrypter(block)
 
-    if len(v)%block.BlockSize() != 0 {
-        return nil, fmt.Errorf("source data must be an integer multiple of %d; current length: %d\n", block.BlockSize(), len(v))
-    }
+    ciphertext := make([]byte, len(v))
+    mode.CryptBlocks(ciphertext, v)
 
-    var dst []byte
-    tmpData := make([]byte, block.BlockSize())
-    for i := 0; i < len(v); i += block.BlockSize() {
-        block.Encrypt(tmpData, v[i:i+block.BlockSize()])
-        dst = append(dst, tmpData...)
-    }
-
-    return dst, nil
+    return ciphertext, err
 }
 
 // func encryptCBC(k, v, iv []byte) ([]byte, error) {

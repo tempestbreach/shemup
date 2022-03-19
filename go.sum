@@ -1,2 +1,4 @@
+github.com/andreburgaud/crypt2go v1.0.0 h1:DZ/iQbNJpIibrO2gCwBE3aImwoz1jvvYbIT5z3cSjyU=
+github.com/andreburgaud/crypt2go v1.0.0/go.mod h1:gnCdUGhKxQZrUU8/GJbni+BCYI6YC39PWEwiMIImJpI=
 github.com/chmike/cmac-go v0.0.0-20200429090136-0f9ada0f622c h1:0Iy3Hh8Flqv+D7N2J28QMU7L4WB1Lqfa44MyaPs/Imk=
 github.com/chmike/cmac-go v0.0.0-20200429090136-0f9ada0f622c/go.mod h1:DV+RehWCE3ssSQ77dmfTZhrfKHisZWQbMC06LGZ/+VA=
