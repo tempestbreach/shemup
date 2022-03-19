@@ -186,14 +186,9 @@ func generateMessage(info MemoryUpdateInfo, KEY_UPDATE_ENC_C []byte, KEY_UPDATE_
     }
 
     o5 := toBytes(uint((info.C_ID << 4) | 0x08), 4)
-    fmt.Println(o5)
-    fmt.Println(string(o5))
-    o5H := hex.EncodeToString(o5)
-    fmt.Println(o5H)
     o6 := make([]byte, 12)
     f4 := append(o5, o6...)
     o7, err := encryptECB(k3, f4)
-    fmt.Println(o7)
     if err != nil {
         fmt.Println(err)
     }
