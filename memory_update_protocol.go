@@ -28,8 +28,6 @@ type MemoryUpdateMessage struct {
     M5              []byte      `json:"m5"`
 }
 
-// func(m *MemoryUpdateMessage) ToMap()
-
 func encryptECB(k, v []byte) ([]byte, error){
     if !validKey(k) {
         return nil, fmt.Errorf("length of the key is invalid: %d\n", len(k))
@@ -54,7 +52,6 @@ func encryptECB(k, v []byte) ([]byte, error){
     return dst, nil
 }
 
-// func encryptCBC(k, v, iv []byte) ([]byte, error) {
 func encryptCBC(k, v, iv []byte) ([]byte, error) {
     if len(v)%aes.BlockSize != 0 {
         return nil, fmt.Errorf("source data must be an integer multiple of %d; current length: %d\n", aes.BlockSize, len(v))
@@ -65,11 +62,6 @@ func encryptCBC(k, v, iv []byte) ([]byte, error) {
         return nil, err
     }
 
-    // v, err = pkcs7Pad(v, block.BlockSize())
-    // if err != nil {
-    //     return nil, err
-    // }
-
     ciphertext := make([]byte, len(v))
 
     mode := cipher.NewCBCEncrypter(block, iv)
@@ -78,20 +70,6 @@ func encryptCBC(k, v, iv []byte) ([]byte, error) {
 
     return ciphertext, err
 }
-
-// func pkcs7Pad(b []byte, blocksize int) ([]byte, error) {
-//     if blocksize <= 0 {
-// 		return nil, ErrInvalidBlockSize
-// 	}
-// 	if b == nil || len(b) == 0 {
-// 		return nil, ErrInvalidPKCS7Data
-// 	}
-// 	n := blocksize - (len(b) % blocksize)
-// 	pb := make([]byte, len(b)+n)
-// 	copy(pb, b)
-// 	copy(pb[len(b):], bytes.Repeat([]byte{byte(n)}, n))
-// 	return pb, nil
-// }
 
 func generateCMAC(k, m []byte) ([]byte, error) {
     cm, err := cmac.New(aes.NewCipher, k)
